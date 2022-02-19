@@ -1,0 +1,338 @@
+#include <d3dx9.h>
+#include "cube.h"
+#include "mydirect3d.h"
+#include "camera.h"
+#include "texture.h"
+
+
+#define FVF_VERTEX3D (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+
+static float g_angle = 0.0f;
+static float g_value = 0.0f;
+
+static int g_TexId = TEXTURE_INVALID_ID;
+static LPDIRECT3DVERTEXBUFFER9 g_pVertexBuffer = NULL;
+static LPDIRECT3DINDEXBUFFER9 g_pIndexBuffer = NULL;
+
+//頂点データ配列
+/*
+static const Vertex3D g_CubeVertex[] = {
+
+	//前面　赤
+	{D3DXVECTOR3(-0.5f,0.5f,-0.5f),D3DCOLOR_RGBA(255,0,0,255)},
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f),D3DCOLOR_RGBA(255,0,0,255)},
+	{D3DXVECTOR3(0.5f,-0.5f,-0.5f),D3DCOLOR_RGBA(255,0,0,255)},
+	{D3DXVECTOR3(-0.5f,0.5f,-0.5f),D3DCOLOR_RGBA(255,0,0,255)},
+	{D3DXVECTOR3(0.5f,-0.5f,-0.5f),D3DCOLOR_RGBA(255,0,0,255)},
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DCOLOR_RGBA(255,0,0,255)},
+
+	//上面 緑
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f),D3DCOLOR_RGBA(0,255,0,255)},
+	{D3DXVECTOR3(0.5f,0.5f,0.5f),D3DCOLOR_RGBA(0,255,0,255)},
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f),D3DCOLOR_RGBA(0,255,0,255)},
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f),D3DCOLOR_RGBA(0,255,0,255)},
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f),D3DCOLOR_RGBA(0,255,0,255)},
+	{D3DXVECTOR3(-0.5f,0.5f,-0.5f),D3DCOLOR_RGBA(0,255,0,255)},
+
+	//右面 青
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f),D3DCOLOR_RGBA(0,0,255,255)},
+	{D3DXVECTOR3(0.5f,0.5f,0.5f),D3DCOLOR_RGBA(0,0,255,255)},
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f),D3DCOLOR_RGBA(0,0,255,255)},
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f),D3DCOLOR_RGBA(0,0,255,255)},
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f),D3DCOLOR_RGBA(0,0,255,255)},
+	{D3DXVECTOR3(0.5f,-0.5f,-0.5f),D3DCOLOR_RGBA(0,0,255,255)},
+
+	//左面 水色
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f),D3DCOLOR_RGBA(0,255,255,255)},
+	{D3DXVECTOR3(-0.5f,0.5f,-0.5f),D3DCOLOR_RGBA(0,255,255,255)},
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DCOLOR_RGBA(0,255,255,255)},
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f),D3DCOLOR_RGBA(0,255,255,255)},
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DCOLOR_RGBA(0,255,255,255)},
+	{D3DXVECTOR3(-0.5f,-0.5f,0.5f),D3DCOLOR_RGBA(0,255,255,255)},
+
+	//下面 黄色
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DCOLOR_RGBA(255,255,0,255)},
+	{D3DXVECTOR3(0.5f,-0.5f,-0.5f),D3DCOLOR_RGBA(255,255,0,255)},
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f),D3DCOLOR_RGBA(255,255,0,255)},
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DCOLOR_RGBA(255,255,0,255)},
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f),D3DCOLOR_RGBA(255,255,0,255)},
+	{D3DXVECTOR3(-0.5f,-0.5f,0.5f),D3DCOLOR_RGBA(255,255,0,255)},
+
+	//裏面 紫
+	{D3DXVECTOR3(0.5f,0.5f,0.5f),D3DCOLOR_RGBA(255,0,255,255)},
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f),D3DCOLOR_RGBA(255,0,255,255)},
+	{D3DXVECTOR3(-0.5f,-0.5f,0.5f),D3DCOLOR_RGBA(255,0,255,255)},
+	{D3DXVECTOR3(0.5f,0.5f,0.5f),D3DCOLOR_RGBA(255,0,255,255)},
+	{D3DXVECTOR3(-0.5f,-0.5f,0.5f),D3DCOLOR_RGBA(255,0,255,255)},
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f),D3DCOLOR_RGBA(255,0,255,255)},
+
+};*/
+
+//頂点データ配列
+/*
+static const Vertex3D g_CubeVertex[] = {
+
+	//前面　赤
+	{D3DXVECTOR3(-0.5f,0.5f,-0.5f) ,D3DXVECTOR3(0.0f,0.0f,-1.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.0f,0.0f)  },
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f)  ,D3DXVECTOR3(0.0f,0.0f,-1.0f),D3DCOLOR_RGBA(255,255,255,255)  ,D3DXVECTOR2(0.25f,0.0f) },
+	{D3DXVECTOR3(0.5f,-0.5f,-0.5f) ,D3DXVECTOR3(0.0f,0.0f,-1.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.25f,0.25f)},
+	{D3DXVECTOR3(-0.5f,0.5f,-0.5f) ,D3DXVECTOR3(0.0f,0.0f,-1.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.0f,0.0f)  },
+	{D3DXVECTOR3(0.5f,-0.5f,-0.5f) ,D3DXVECTOR3(0.0f,0.0f,-1.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.25f,0.25f)},
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DXVECTOR3(0.0f,0.0f,-1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,0.25f) },
+
+	//上面 緑
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f) ,D3DXVECTOR3(0.0f,1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.25f,0.0f)   },
+	{D3DXVECTOR3(0.5f,0.5f,0.5f)  ,D3DXVECTOR3(0.0f,1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255)  ,D3DXVECTOR2(0.50f,0.0f) },
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f) ,D3DXVECTOR3(0.0f,1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.50f,0.25f) },
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f) ,D3DXVECTOR3(0.0f,1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.25f,0.0f)   },
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f) ,D3DXVECTOR3(0.0f,1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.50f,0.25f) },
+	{D3DXVECTOR3(-0.5f,0.5f,-0.5f),D3DXVECTOR3(0.0f,1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.25f,0.25f)  },
+
+	//右面 青
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f) ,D3DXVECTOR3(1.0f,0.0f,0.0f), D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.50f,0.0f) },
+	{D3DXVECTOR3(0.5f,0.5f,0.5f)  ,D3DXVECTOR3(1.0f,0.0f,0.0f),  D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.75f,0.0f) },
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f) ,D3DXVECTOR3(1.0f,0.0f,0.0f), D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.75f,0.25f)},
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f) ,D3DXVECTOR3(1.0f,0.0f,0.0f), D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.50f,0.0f) },
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f) ,D3DXVECTOR3(1.0f,0.0f,0.0f), D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.75f,0.25f)},
+	{D3DXVECTOR3(0.5f,-0.5f,-0.5f),D3DXVECTOR3(1.0f,0.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.50f,0.25f)},
+
+	//左面 水色
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f)  ,D3DXVECTOR3(-1.0f,0.0f,0.0f),  D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.75f,0.0f) },
+	{D3DXVECTOR3(-0.5f,0.5f,-0.5f) ,D3DXVECTOR3(-1.0f,0.0f,0.0f), D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(1.00f,0.0f) },
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DXVECTOR3(-1.0f,0.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(1.00f,0.25f)},
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f)  ,D3DXVECTOR3(-1.0f,0.0f,0.0f),  D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.75f,0.0f) },
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DXVECTOR3(-1.0f,0.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(1.00f,0.25f)},
+	{D3DXVECTOR3(-0.5f,-0.5f,0.5f) ,D3DXVECTOR3(-1.0f,0.0f,0.0f), D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.75f,0.25f)},
+
+	//下面 黄色
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DXVECTOR3(0.0f,-1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,0.25f)  },
+	{D3DXVECTOR3(0.5f,-0.5f,-0.5f) ,D3DXVECTOR3(0.0f,-1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.25f,0.25f) },
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f)  ,D3DXVECTOR3(0.0f,-1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.25f,0.50f)},
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DXVECTOR3(0.0f,-1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,0.25f)  },
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f)  ,D3DXVECTOR3(0.0f,-1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.25f,0.50f)},
+	{D3DXVECTOR3(-0.5f,-0.5f,0.5f) ,D3DXVECTOR3(0.0f,-1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,0.50f) },
+
+	//裏面 紫
+	{D3DXVECTOR3(0.5f,0.5f,0.5f)   ,D3DXVECTOR3(0.0f,0.0f,1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.25f,0.25f) },
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f)  ,D3DXVECTOR3(0.0f,0.0f,1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.50f,0.25f)},
+	{D3DXVECTOR3(-0.5f,-0.5f,0.5f) ,D3DXVECTOR3(0.0f,0.0f,1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.50f,0.50f)},
+	{D3DXVECTOR3(0.5f,0.5f,0.5f)   ,D3DXVECTOR3(0.0f,0.0f,1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.25f,0.25f) },
+	{D3DXVECTOR3(-0.5f,-0.5f,0.5f) ,D3DXVECTOR3(0.0f,0.0f,1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.50f,0.50f)},
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f)  ,D3DXVECTOR3(0.0f,0.0f,1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.25f,0.50f) },
+
+};
+*/
+static const Vertex3D g_CubeVertex[] = {
+
+	//前面　赤
+	{D3DXVECTOR3(-0.5f,0.5f,-0.5f) ,D3DXVECTOR3(0.0f,0.0f,-1.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.0f,0.0f)  },
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f)  ,D3DXVECTOR3(0.0f,0.0f,-1.0f),D3DCOLOR_RGBA(255,255,255,255)  ,D3DXVECTOR2(1.0f,0.0f) },
+	{D3DXVECTOR3(0.5f,-0.5f,-0.5f) ,D3DXVECTOR3(0.0f,0.0f,-1.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(1.0f,1.0f)},
+//	{D3DXVECTOR3(-0.5f,0.5f,-0.5f) ,D3DXVECTOR3(0.0f,0.0f,-1.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.0f,0.0f)  },
+//	{D3DXVECTOR3(0.5f,-0.5f,-0.5f) ,D3DXVECTOR3(0.0f,0.0f,-1.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.25f,0.25f)},
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DXVECTOR3(0.0f,0.0f,-1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,1.0f) },
+
+	//上面 緑
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f) ,D3DXVECTOR3(0.0f,1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.0f,0.0f)   },
+	{D3DXVECTOR3(0.5f,0.5f,0.5f)  ,D3DXVECTOR3(0.0f,1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255)  ,D3DXVECTOR2(1.0f,0.0f) },
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f) ,D3DXVECTOR3(0.0f,1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(1.0f,1.0f) },
+//	{D3DXVECTOR3(-0.5f,0.5f,0.5f) ,D3DXVECTOR3(0.0f,1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.25f,0.0f)   },
+//	{D3DXVECTOR3(0.5f,0.5f,-0.5f) ,D3DXVECTOR3(0.0f,1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255) ,D3DXVECTOR2(0.50f,0.25f) },
+	{D3DXVECTOR3(-0.5f,0.5f,-0.5f),D3DXVECTOR3(0.0f,1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,1.0f)  },
+
+	//右面 青
+	{D3DXVECTOR3(0.5f,0.5f,-0.5f) ,D3DXVECTOR3(1.0f,0.0f,0.0f), D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,0.0f) },
+	{D3DXVECTOR3(0.5f,0.5f,0.5f)  ,D3DXVECTOR3(1.0f,0.0f,0.0f),  D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(1.0f,0.0f) },
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f) ,D3DXVECTOR3(1.0f,0.0f,0.0f), D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(1.0f,1.0f)},
+//	{D3DXVECTOR3(0.5f,0.5f,-0.5f) ,D3DXVECTOR3(1.0f,0.0f,0.0f), D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.50f,0.0f) },
+//	{D3DXVECTOR3(0.5f,-0.5f,0.5f) ,D3DXVECTOR3(1.0f,0.0f,0.0f), D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.75f,0.25f)},
+	{D3DXVECTOR3(0.5f,-0.5f,-0.5f),D3DXVECTOR3(1.0f,0.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,1.0f)},
+
+	//左面 水色
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f)  ,D3DXVECTOR3(-1.0f,0.0f,0.0f),  D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,0.0f) },
+	{D3DXVECTOR3(-0.5f,0.5f,-0.5f) ,D3DXVECTOR3(-1.0f,0.0f,0.0f), D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(1.0f,0.0f) },
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DXVECTOR3(-1.0f,0.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(1.0f,1.0f)},
+//	{D3DXVECTOR3(-0.5f,0.5f,0.5f)  ,D3DXVECTOR3(-1.0f,0.0f,0.0f),  D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.75f,0.0f) },
+//	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DXVECTOR3(-1.0f,0.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(1.00f,0.25f)},
+	{D3DXVECTOR3(-0.5f,-0.5f,0.5f) ,D3DXVECTOR3(-1.0f,0.0f,0.0f), D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,1.0f)},
+
+	//下面 黄色
+	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DXVECTOR3(0.0f,-1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,0.0f)  },
+	{D3DXVECTOR3(0.5f,-0.5f,-0.5f) ,D3DXVECTOR3(0.0f,-1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(1.0f,0.0f) },
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f)  ,D3DXVECTOR3(0.0f,-1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(1.0f,1.0f)},
+//	{D3DXVECTOR3(-0.5f,-0.5f,-0.5f),D3DXVECTOR3(0.0f,-1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,0.25f)  },
+//	{D3DXVECTOR3(0.5f,-0.5f,0.5f)  ,D3DXVECTOR3(0.0f,-1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.25f,0.50f)},
+	{D3DXVECTOR3(-0.5f,-0.5f,0.5f) ,D3DXVECTOR3(0.0f,-1.0f,0.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,1.0f) },
+
+	//裏面 紫
+	{D3DXVECTOR3(0.5f,0.5f,0.5f)   ,D3DXVECTOR3(0.0f,0.0f,1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,0.0f) },
+	{D3DXVECTOR3(-0.5f,0.5f,0.5f)  ,D3DXVECTOR3(0.0f,0.0f,1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(1.0f,0.0f)},
+	{D3DXVECTOR3(-0.5f,-0.5f,0.5f) ,D3DXVECTOR3(0.0f,0.0f,1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(1.0f,1.0f)},
+//	{D3DXVECTOR3(0.5f,0.5f,0.5f)   ,D3DXVECTOR3(0.0f,0.0f,1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.25f,0.25f) },
+//	{D3DXVECTOR3(-0.5f,-0.5f,0.5f) ,D3DXVECTOR3(0.0f,0.0f,1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.50f,0.50f)},
+	{D3DXVECTOR3(0.5f,-0.5f,0.5f)  ,D3DXVECTOR3(0.0f,0.0f,1.0f),D3DCOLOR_RGBA(255,255,255,255),D3DXVECTOR2(0.0f,1.0f) },
+
+};
+
+void Cube_Initialize() {
+
+	LPDIRECT3DDEVICE9 pDevice = MYDirect3D_GetDevice();
+
+	g_TexId = Texture_SetTextureLoadFile("asset/obj.png");
+	if (Texture_Load() > 0) {
+		MessageBox(NULL, "テクスチャの読み込みに失敗", "エラー", MB_OK);
+	}
+
+
+	pDevice->CreateVertexBuffer(sizeof(Vertex3D) * 24, D3DUSAGE_WRITEONLY, FVF_VERTEX3D, D3DPOOL_MANAGED, &g_pVertexBuffer, NULL);
+
+	pDevice->CreateIndexBuffer(sizeof(WORD) * 36, D3DUSAGE_WRITEONLY, D3DFMT_INDEX16, D3DPOOL_MANAGED, &g_pIndexBuffer, NULL);
+
+
+	Vertex3D* pV;
+
+	g_pVertexBuffer->Lock(0,0,(void**)&pV,0);
+	memcpy(pV,g_CubeVertex,sizeof(g_CubeVertex));
+	g_pVertexBuffer->Unlock();
+
+	WORD* pIndex;
+	g_pIndexBuffer->Lock(0,0,(void**)&pIndex,0);
+
+	//index書く
+	for (int i = 0; i < 6; i++) {
+		pIndex[0 + i * 6] = 0 + i * 4;
+		pIndex[1 + i * 6] = 1 + i * 4;
+		pIndex[2 + i * 6] = 2 + i * 4;
+		pIndex[3 + i * 6] = 0 + i * 4;
+		pIndex[4 + i * 6] = 2 + i * 4;
+		pIndex[5 + i * 6] = 3 + i * 4;
+	}
+
+
+	g_pIndexBuffer->Unlock();
+}
+
+
+void Cube_Finalize() {
+
+	if (g_pVertexBuffer) {
+		g_pVertexBuffer->Release();
+		g_pVertexBuffer = NULL;
+	}
+
+	if (g_pIndexBuffer) {
+		g_pIndexBuffer->Release();
+		g_pIndexBuffer = NULL;
+	}
+
+
+}
+
+
+void Cube_Draw(const D3DXMATRIX* pMtxWorld) {
+
+	LPDIRECT3DDEVICE9 pDevice = MYDirect3D_GetDevice();
+	//ワールド座標変換行列
+	//D3DXMATRIX mtxWorld,mtxS,mtxR,mtxT;
+	//D3DXMATRIX mtx1,mtx2;
+
+	//D3DXMatrixRotationY(&mtxR,g_angle);
+	//D3DXMatrixTranslation(&mtxT,4.5f,0.5f,0.5f);
+	//D3DXMatrixScaling(&mtxS,1.0f,3.0f * sinf(g_angle),1.0f);
+	
+	//mtxWorld = mtxR * mtxT * mtxR;
+	//単位行列の作成
+	//D3DXMatrixIdentity(&mtxWorld);
+	//回転行列の作成
+	//D3DXVECTOR3 v_axis(1.0f,1.0f,0.0f);
+	//D3DXMatrixRotationYawPitchRoll(&mtxWorld, g_angle,0.5f,2.0f);
+	//D3DXMatrixRotationAxis(&mtxWorld,&v_axis,g_angle);
+	//D3DXMatrixRotationY(&mtxWorld,g_angle);
+	//D3DXMatrixRotationZ(&mtxWorld, g_angle);
+	//D3DXMatrixRotationAxis();(引数 アドレス,軸を表すベクトルのアドレス,回転角度)
+	//D3DXMatrixRotationYawPitchRoll();指定した角度に回転させる(引数 アドレス,yaw:y軸 pitch:x軸 roll:z軸)
+
+	//拡大行列
+	//D3DXMatrixScaling(&mtxWorld,1.0f,2.0f,3.0f);
+
+
+	//行列の合成
+	//D3DXMatrixMultiply();
+	//D3DXMATRIX型は*で合成できる
+
+	//平行移動行列
+	//D3DXMatrixTranslation(&mtxWorld,1.0f,2.0f,3.0f);
+
+	//ライトを有効化
+	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+
+	//ライト(平行光源)の設定を作成
+	D3DLIGHT9 light = {};
+	//memset(&light,0,sizeof(light));第２引数で初期化
+	//ZeroMemory(&light, sizeof(light));0で初期化
+	light.Type = D3DLIGHT_DIRECTIONAL;
+
+	D3DXVECTOR3 vecDirLight(-2.0f,-2.0f,1.0f);
+	//D3DXVec3Normalize(&vecDirLight, &vecDirLight);
+	//light.Direction = vecDirLight;
+	D3DXVec3Normalize((D3DXVECTOR3*)&light.Direction, &vecDirLight);
+
+	light.Diffuse.r = 1.0f;
+	light.Diffuse.g = 1.0f;
+	light.Diffuse.b = 1.0f;
+	light.Diffuse.a = 1.0f;
+	
+	// アンビエントは個別のライト自体にも設定でき、その場合には全体のアンビエントとこのアンビエントを足したものになるらしい
+	light.Ambient.r = 0.1f;
+	light.Ambient.g = 0.1f;
+	light.Ambient.b = 0.1f;
+	light.Ambient.a = 1.0f;
+	
+
+	//ディフューズマテリアルを設定(今回は頂点カラーがマテリアル)
+	pDevice->SetRenderState(D3DRS_DIFFUSEMATERIALSOURCE,D3DMCS_COLOR1);
+
+	//アンビエントライトの設定
+	//pDevice->SetRenderState(D3DRS_AMBIENT,D3DCOLOR_RGBA(192,96,128,255));
+	pDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_RGBA(64, 32, 64, 255));
+
+
+	//アンビエントマテリアルを設定(今回は頂点カラーがマテリアル)
+	pDevice->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);
+
+
+	//デバイスにライトを設定
+	pDevice->SetLight(0,&light);
+	pDevice->LightEnable(0,TRUE);
+
+
+	//デバイスにワールド変換行列を設定
+	pDevice->SetTransform(D3DTS_WORLD,pMtxWorld);
+
+	//デバイスにFVFの設定
+	pDevice->SetFVF(FVF_VERTEX3D);
+
+	//デバイスにテクスチャの設定
+	pDevice->SetTexture(0, Texture_GetTexture(g_TexId));
+
+	//ポリゴンの描画
+	//pDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST,2*6,&g_CubeVertex,sizeof(Vertex3D));
+	pDevice->SetIndices(g_pIndexBuffer);
+	pDevice->SetStreamSource(0,g_pVertexBuffer,0,sizeof(Vertex3D));
+	pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,0,0,24,0,12);
+
+	//mtxWorld = mtxR;
+
+	//pDevice->SetTransform(D3DTS_WORLD, &mtxWorld);
+	//pDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 2 * 6, &g_CubeVertex, sizeof(Vertex3D));
+
+
+}
+
+
+void Cube_Update(){
+
+	//g_angle += 0.01f;
+	//g_value = 5 * sinf(g_angle);
+
+}
